@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: dev        # <-- builds the "dev" stage from Dockerfile
+                           # In dev stage, we install all dependencies (including devDependencies)
+                           # This ensures the Nest CLI (needed for `npm run start:dev`) is available
+                           # Without this, Docker would build the production stage, which only has production deps
+                           # and running `npm run start:dev` would fail with "nest: not found"
+    volumes:
+      - .:/usr/src/app # Mount code for hot reload
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./apps/api-gateway/.env
+    command: npm run start:dev
+
+  user:
+    build:
+      context: .
+      dockerfile: ./apps/user/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3002:3002'
+    env_file:
+      - ./apps/user/.env
+    command: npm run start:dev user
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3005:3005' # Only needs to map HTTP Port
+    env_file:
+      - ./apps/auth/.env
+    command: npm run start:dev auth
+
+  user-service-db:
+    image: postgres:14
+    env_file:
+      - ./envs/user_db.env
+    ports:
+      - '5433:5432'
+    volumes:
+      - user-db-volume:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - '5052:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - user-service-db
+
+volumes:
+  user-db-volume:

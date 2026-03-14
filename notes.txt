@@ -1,0 +1,171 @@
+Docker and PG Admin
+
+Note: Steps to connect to DB using PG Admin
+In the left panel (Object Explorer), look for "Servers"
+Right-click directly on the word "Servers" (not in empty space)
+You should see "Register" → "Server..." option
+
+General tab:
+Name: Docker User DB (or any name you prefer)
+Connection tab:
+Host name/address: localhost
+Port: 5432
+Maintenance database: postgres (default) (more data below)
+Username: (from your ./envs/user_db.env)
+Password: (from your ./envs/user_db.env)
+
+What is a maintenance database?
+The maintenance database is the database that pgAdmin (or any PostgreSQL client) connects to initially to establish the connection to the PostgreSQL server. It's used for administrative operations and to list all the other databases on that server.
+Should you use your app's database name?
+You have two options:
+
+Use postgres (recommended): This is the default administrative database that exists on every PostgreSQL installation. It's specifically designed for this purpose.
+Use your app's database name: This works too, but only if that database already exists.
+
+Why postgres is usually better:
+
+It always exists by default
+It's designed for administrative/maintenance tasks
+Your application database might not exist yet when you first connect
+It's cleaner separation - you connect via the admin database, then browse to your app database
+
+What happens after connection:
+Once pgAdmin connects using the maintenance database, you'll see ALL databases on that PostgreSQL server in the left panel, including your application database. You can then browse tables, run queries, etc. on any of them.
+So for your setup:
+
+Maintenance database: postgres
+Username/Password: Whatever's in your ./envs/user_db.env
+
+After connecting, you'll see both the postgres database and your application database listed under the server in pgAdmin's tree view.
+
+NOTE: DockerFile with comments below for reference
+
+# services:
+#   api-gateway:
+#     build:
+#       context: .
+#       dockerfile: ./apps/api-gateway/Dockerfile
+#     volumes:
+#       - .:/usr/src/app 	# Mount your full codebase into the container for live development.
+#       # - /usr/src/app/node_modules # Prevent host node_modules from overwriting the container’s clean install.
+#     ports:
+#       - "3000:3000"
+#     command: "npm run start:dev api-gateway"
+# auth:
+#   build:
+#     context: .
+#     dockerfile: ./apps/auth/Dockerfile
+#   volumes:
+#     - .:/usr/src/app 	      # "Sync my local code with the container so I can live-edit it (Not working for Windows out-of-the-box)
+#     - /usr/src/app/node_modules # "But let the container keep its own node_modules so it doesn’t get messed up by my local system"
+#   ports:
+#     - "3001:3001"
+#   command: "npm run start:dev auth"
+# user:
+#   build:
+#     context: .
+#     dockerfile: ./apps/user/Dockerfile
+#   env_file:
+#     - ./apps/user/.env
+#   volumes:
+#     - .:/usr/src/app 	     # "Sync my local code with the container so I can live-edit it (Not working for Windows out-of-the-box)"
+#     - /usr/src/app/node_modules # "But let the container keep its own node_modules so it doesn’t get messed up by my local system"
+#   ports:
+#     - "3002:3002"
+#   command: "npm run start:dev user"
+
+#   user-service-db:
+#     image: postgres:14
+#     env_file:
+#       - ./envs/user_db.env
+#     ports:
+#       - "5432:5432"   # Host port 5432 → Container port 5432 (can use 5432 instead BUT causing clash with local postgres)
+#      volumes:
+#       - user_database:/var/lib/postgresql/data # Use a named storage area called user_db_data (created by the volume line below the services), and stick it into the place inside the container where Postgres saves its data.”
+
+Having volumes at the bottom isn't completely necessary, but can help:
+Docker will still create the volume automatically, but:
+1. It will work just fine.
+2. But you won’t have control over its configuration (like driver or options).
+3. It might be confusing for future maintainers.
+
+# volumes:
+#   user_database:
+
+Migration guide here: https://javascript.plainenglish.io/nestjs-typeorm-migrations-in-2025-50214275ec8d
+
+Migration Commands
+
+***(When using docker-compose)***
+docker-compose exec user npm run typeorm:generate-migration-user --name=CreateUser
+
+This command is written to accododate our package.jsons script: "typeorm:create-migration-user": "npm run typeorm -- migration:create ./apps/user/migrations/$npm_config_name -d ./apps/user/typeOrm.config.ts",
+Explanation:
+• docker-compose exec → runs a command inside a running service container defined in your docker-compose.yml.
+• user → the service name from docker-compose.yml (maps to the user microservice container).
+• npm run typeorm:generate-migration-user → calls the npm script that generates a migration for the user service.
+• --name=CreateUser → argument passed to the npm script                                                                                                                                                      ; in your script, this maps to $npm_config_name, defining the migration file name.
+
+Create command doensn't need the -d command
+TypeORM Migration Commands
+migration:create vs migration:generate
+
+migration:create
+
+Creates empty template file
+Does NOT need -d config path (doesn't inspect DB)
+Just scaffolds blank migration
+Usage: typeorm -- migration:create ./path/filename
+
+migration:generate
+
+Auto-inspects database schema and entities
+DOES need -d config path (connects to DB)
+Generates SQL automatically
+Usage: typeorm -- migration:generate ./path/filename -d ./path/typeorm.config.ts
+
+Key Finding
+
+-d flag was causing errors with migration:create because it's not supported
+The flag is only needed for migration:generate which actually connects to the database
+For creating empty templates, omit the -d flag entirely
+
+Command for running:
+docker-compose exec user npm run typeorm:run-migrations-user
+
+***Raw command (in case we dont want to first specify scripts in package.json)***
+docker-compose exec issue-insight-be npm run migration:generate -- src/database/migrations/AuthSetup
+
+***If running migrations in a local setup:***
+npm run migration:generate -- src/database/migration/CreateUserTable
+
+Typeorm Configs:
+
+1. AutoLoadEntities: true
+Loads all entities automatically into NestJS modules at runtime.
+Helps with dependency injection and forFeature repositories.
+Does not affect migrations.
+
+2. Entities in the DataSource (TypeORM CLI)
+Needed for migration commands (generate, run, revert).
+Tells TypeORM which tables/schemas exist when generating SQL.
+Must include full paths in a monorepo setup.
+
+3. Dynchronize: false
+Prevents TypeORM from automatically modifying the database schema at runtime.
+Ensures all schema changes go through controlled migrations, avoiding accidental data loss in production.
+
+Bottom line:
+Use autoLoadEntities for runtime convenience.
+Always specify entities in the DataSource for migrations.
+Keep synchronize: false in prod to enforce safe schema management.
+
+In a hybrid NestJS service running inside Docker, only the HTTP port needs to be exposed
+because the host machine (browser, Postman, frontend) communicates from outside the Docker network. The TCP microservice port does not need to be exposed since all microservices run inside the same Docker network and communicate internally using their service names (e.g., auth:4001). HTTP requires a port mapping (3001:3001), but TCP does not, because it never leaves Docker’s internal network.
+
+/////////////////// Auth guards //////////
+We have two JWT auteh guards
+JWT Guards
+Commons JWT Guard: Generic JWT validation used by the API Gateway and other services. Validates token signature only.
+Auth Service JWT Guard: Auth-specific guard that validates the JWT AND fetches the full user object from the User microservice. Used by auth message patterns (LOGIN, AUTHENTICATE, etc.) where the complete user data is needed.
+Rule: Auth-specific logic stays in the auth service. Generic JWT validation lives in commons.
