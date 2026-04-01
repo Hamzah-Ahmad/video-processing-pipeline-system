@@ -7,6 +7,7 @@ import { AUTH_SERVICE } from '@app/common/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard, RolesGuard } from '@app/common/guards';
 import { AuthModule } from './auth/auth.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AuthModule } from './auth/auth.module';
         // imports: [ConfigModule] // We would need to do this if isGlobal was not set to true in ConfigModule.forRoot
       },
     ]),
+    MediaModule,
   ],
   controllers: [ApiGatewayController],
   providers: [

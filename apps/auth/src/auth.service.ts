@@ -65,6 +65,7 @@ export class AuthService {
     }
   }
 
+  // Will be used when refresh token is implemented
   async logout() {
     return `Implement refresh token`;
   }

@@ -27,6 +27,7 @@ export class AuthController {
     return { accessToken, expires, user };
   }
 
+  // Will be used when refresh token is implemented
   @MessagePattern(AUTH_PATTERNS.LOGOUT)
   async logout() {
     return await this.authService.logout();

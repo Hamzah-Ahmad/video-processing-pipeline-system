@@ -49,7 +49,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    await this.authService.logout(); // Add await here
+    // await this.authService.logout();  // Will be used when refresh token is implemented
     response.clearCookie('Authentication');
     response.status(200).send();
   }

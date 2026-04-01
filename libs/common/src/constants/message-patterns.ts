@@ -10,3 +10,7 @@ export const USER_PATTERNS = {
   CREATE: 'user.create',
   VERIFY: 'user.verify',
 };
+
+export const MEDIA_PATTERS = {
+  GET_UPLOAD_URL: 'media.getUploadUrl'
+}

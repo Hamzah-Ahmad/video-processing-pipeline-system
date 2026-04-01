@@ -1,4 +1,4 @@
-Docker and PG Admin
+Docker and PGAdmin
 
 Note: Steps to connect to DB using PG Admin
 In the left panel (Object Explorer), look for "Servers"
@@ -74,7 +74,7 @@ NOTE: DockerFile with comments below for reference
 #     - "3002:3002"
 #   command: "npm run start:dev user"
 
-#   user-service-db:
+#   user-db:
 #     image: postgres:14
 #     env_file:
 #       - ./envs/user_db.env
@@ -131,7 +131,7 @@ The flag is only needed for migration:generate which actually connects to the da
 For creating empty templates, omit the -d flag entirely
 
 Command for running:
-docker-compose exec user npm run typeorm:run-migrations-user
+docker-compose exec user npm run typeorm:run-migration-user
 
 ***Raw command (in case we dont want to first specify scripts in package.json)***
 docker-compose exec issue-insight-be npm run migration:generate -- src/database/migrations/AuthSetup
