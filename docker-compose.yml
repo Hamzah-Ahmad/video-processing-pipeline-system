@@ -135,6 +135,17 @@ services:
     volumes:
       - media-db-container-volume:/var/lib/postgresql/data
 
+  video-worker:
+    build:
+      context: ./workers/video-worker
+    volumes:
+    - ./workers/video-worker:/app   # mount source for hot reload
+    - /usr/src/app/node_modules  
+    depends_on:
+      - localstack
+    command: npx ts-node-dev --respawn src/index.ts
+
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
