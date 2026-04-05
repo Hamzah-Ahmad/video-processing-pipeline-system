@@ -33,7 +33,7 @@ export class AuthService {
       );
       const accessToken = this.jwtService.sign(tokenPayload);
       return { accessToken, expires };
-    } catch (error) {
+    } catch (error: any) {
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: error.message,
@@ -49,7 +49,7 @@ export class AuthService {
 
       const { accessToken, expires } = await this.login(user);
       return { accessToken, expires, user };
-    } catch (error) {
+    } catch (error: any) {
       // Pass error to the client with correct status
       if (error?.message === 'Username already taken') {
         throw new RpcException({

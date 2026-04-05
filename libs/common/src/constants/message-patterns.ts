@@ -12,5 +12,5 @@ export const USER_PATTERNS = {
 };
 
 export const MEDIA_PATTERS = {
-  GET_UPLOAD_URL: 'media.getUploadUrl'
+  GET_UPLOAD_URL: 'media.uploadUrl'
 }

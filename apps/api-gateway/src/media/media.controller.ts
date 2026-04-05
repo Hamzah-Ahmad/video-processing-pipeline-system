@@ -1,13 +1,14 @@
 import { Public } from '@app/common/decorators';
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { MediaService } from './media.service';
+import { UrlReqBodyDto } from './dto/UrlReqBody.dto';
 
 @Controller('media')
 export class MediaController {
   constructor(@Inject() private mediaService: MediaService) {}
   @Public()
-  @Get('upload')
-  getUploadUrl() {
-    return  this.mediaService.getUploadUrl()
+  @Post('upload-url')
+  uploadUrl(@Body() body: UrlReqBodyDto) {
+    return this.mediaService.uploadUrl(body);
   }
 }

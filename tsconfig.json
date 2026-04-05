@@ -12,11 +12,12 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false, //true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    // "ignoreDeprecations": "6.0",
     "paths": {
       "@app/common": [
         "libs/common/src"
@@ -24,6 +25,7 @@
       "@app/common/*": [
         "libs/common/src/*"
       ]
-    }
-  }
+    },
+  },
+
 }
