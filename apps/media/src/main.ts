@@ -14,6 +14,24 @@ async function bootstrap() {
       port: configService.getOrThrow('PORT'),
     },
   });
+
+  app.connectMicroservice({
+    transport: Transport.KAFKA,
+    options: {
+      allowAutoTopicCreation: true,
+      client: {
+        clientId: 'media-service',
+        brokers: ['kafka:9092'],
+      },
+      retry: {
+        initialRetryTime: 300,
+        retries: 10,
+      },
+      consumer: {
+        groupId: 'media-consumer-group',
+      },
+    },
+  });
   app.useGlobalPipes(new ValidationPipe());
 
   // Start all microservices

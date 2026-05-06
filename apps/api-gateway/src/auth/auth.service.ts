@@ -31,6 +31,5 @@ export class AuthService {
     const data = await firstValueFrom(
       this.authClient.send(AUTH_PATTERNS.LOGOUT, {}),
     );
-    console.log('LOGGER - data: ', data);
   }
 }

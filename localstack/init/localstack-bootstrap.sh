@@ -3,6 +3,7 @@ set -e  # exit immediately if any command fails
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUCKET_NAME="uploaded-videos"
+PROCESSED_VIDEOS_BUCKET_NAME="processed-videos"
 
 #############################
 # 1️⃣ Create SQS Queues
@@ -38,6 +39,20 @@ awslocal s3 mb s3://$BUCKET_NAME
 echo "Applying CORS config..."
 awslocal s3api put-bucket-cors \
   --bucket $BUCKET_NAME \
+  --cors-configuration file://$SCRIPT_DIR/cors.json
+
+echo "✅ Bucket created successfully"
+
+#############################
+# 2️⃣ Create Processed Videos S3 Bucket
+#############################
+
+echo "Creating S3 bucket: $PROCESSED_VIDEOS_BUCKET_NAME..."
+awslocal s3 mb s3://$PROCESSED_VIDEOS_BUCKET_NAME
+
+echo "Applying CORS config..."
+awslocal s3api put-bucket-cors \
+  --bucket $PROCESSED_VIDEOS_BUCKET_NAME \
   --cors-configuration file://$SCRIPT_DIR/cors.json
 
 echo "✅ Bucket created successfully"
