@@ -53,7 +53,7 @@ export class S3Service {
 
       await this.s3Client.send(command);
     } catch (err) {
-      console.log("LOGGER - upload err: ", err)
+      console.log("Error while uploading...", err)
     }
   }
 }

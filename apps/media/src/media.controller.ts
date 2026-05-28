@@ -16,7 +16,6 @@ export class MediaController {
 
   @MessagePattern(VIDEO_TOPICS.PROCESSED)
   saveUrlsToDb(@Payload() payload: any): any {
-    console.log('LOGGER - payload: ', payload);
     return `REACHED`;
   }
 }

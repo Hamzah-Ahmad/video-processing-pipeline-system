@@ -22,7 +22,12 @@
     "typeorm:create-migration-user": "npm run typeorm -- migration:create ./apps/user/migrations/$npm_config_name",
     "typeorm:generate-migration-user": "npm run typeorm -- migration:generate ./apps/user/migrations/$npm_config_name -d ./apps/user/typeorm.config.ts",
     "typeorm:run-migration-user": "npm run typeorm -- migration:run -d ./apps/user/typeorm.config.ts",
-    "typeorm:revert-migration-user": "npm run typeorm -- migration:revert -d ./apps/user/typeorm.config.ts"
+    "typeorm:revert-migration-user": "npm run typeorm -- migration:revert -d ./apps/user/typeorm.config.ts",
+    
+    "typeorm:create-migration-media": "npm run typeorm -- migration:create ./apps/media/migrations/$npm_config_name",
+    "typeorm:generate-migration-media": "npm run typeorm -- migration:generate ./apps/media/migrations/$npm_config_name -d ./apps/media/typeorm.config.ts",
+    "typeorm:run-migration-media": "npm run typeorm -- migration:run -d ./apps/media/typeorm.config.ts",
+    "typeorm:revert-migration-media": "npm run typeorm -- migration:revert -d ./apps/media/typeorm.config.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1021.0",

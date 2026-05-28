@@ -98,6 +98,8 @@ Migration Commands
 
 ***(When using docker-compose)***
 docker-compose exec user npm run typeorm:generate-migration-user --name=CreateUser
+docker-compose exec media npm run typeorm:generate-migration-media --name=CreateMedia
+
 
 This command is written to accododate our package.jsons script: "typeorm:create-migration-user": "npm run typeorm -- migration:create ./apps/user/migrations/$npm_config_name -d ./apps/user/typeOrm.config.ts",
 Explanation:

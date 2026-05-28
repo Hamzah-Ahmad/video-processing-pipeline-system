@@ -31,7 +31,7 @@ export class LocalAuthGuard implements CanActivate {
       data.user = user;
 
       return true;
-    } catch (err) {
+    } catch (err: any) {
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED, // optional
         message: err.message,

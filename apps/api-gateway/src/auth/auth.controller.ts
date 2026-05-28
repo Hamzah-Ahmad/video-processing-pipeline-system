@@ -24,6 +24,8 @@ export class AuthController {
     response.cookie('Authentication', accessToken, {
       httpOnly: true,
       expires: expiresDate,
+      secure: process.env.NODE_ENV === 'production', // Set Secure flag only in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
     response.status(200).send(user);
   }
@@ -43,6 +45,8 @@ export class AuthController {
     response.cookie('Authentication', accessToken, {
       httpOnly: true,
       expires: expiresDate,
+      secure: process.env.NODE_ENV === 'production', // Set Secure flag only in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
     response.status(200).send(user);
   }
