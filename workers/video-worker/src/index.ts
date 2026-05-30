@@ -1,4 +1,8 @@
-import { ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import {
+  DeleteMessageCommand,
+  ReceiveMessageCommand,
+  SQSClient,
+} from '@aws-sdk/client-sqs';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import processVideo from './jobs/process-video';
 import { Kafka } from 'kafkajs';
@@ -57,13 +61,27 @@ async function pollQueue() {
       if (result.Messages?.length) {
         const messages = result.Messages;
         for (const message of messages) {
-          const body = JSON.parse(message.Body || '');
+          try {
+            const body = JSON.parse(message.Body || '');
 
-          for (const record of body?.Records) {
-            const bucket = record.s3.bucket.name;
-            const key = record.s3.object.key;
+            for (const record of body?.Records) {
+              const bucket = record.s3.bucket.name;
+              const key = record.s3.object.key;
 
-            await processVideo({ inputBucket: bucket, inputKey: key });
+              await processVideo({ inputBucket: bucket, inputKey: key });
+            }
+
+            await sqs.send(
+              new DeleteMessageCommand({
+                QueueUrl: 'http://localstack:4566/000000000000/UploadVideoQueue',
+                ReceiptHandle: message.ReceiptHandle,
+              }),
+            );
+          } catch (err) {
+            console.error(
+              'Failed to process message, leaving in queue for retry:',
+              err,
+            );
           }
         }
       }

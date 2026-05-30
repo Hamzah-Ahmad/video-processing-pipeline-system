@@ -1,0 +1,51 @@
+Authentication b/w micorservices and getting current user
+
+- In api-gateway media module
+  -- Controller
+        @Get('test')
+        test( @CurrentUser() user: UserDto, @Req() req: Request) {
+            const cookie = req.cookies?.Authentication;
+            return this.mediaService.test(cookie);
+        }
+
+  -- Service
+        async test(authCookie: string) {
+            return await firstValueFrom(
+            this.mediaClient.send<any, any>('media_test', {
+                Authentication: authCookie // ===>> IMPORTANT: NOTE - 01 below
+            }),
+            );
+        }
+
+
+- In media microservice 
+  -- Controller
+        @UseGuards(JwtAuthGuard)
+        @MessagePattern('media_test')
+        test(@Payload() payload: any, @CurrentUser() user: UserDto): any {
+            return {message: `REACHED MEDIA TEST`, payload, user};
+        }
+
+NOTE - 01: 
+- If we dont send  Authentication: authCookie, th media_test consumer will give an error (in the media microservice).
+- The error will be this  {status: 'error',  message: 'No JWT provided'}
+- The Authentication: cookie format is because of our common JWtAuthguard code check the handleRpc section. 
+- This wholow flow is how we can get current user when using consumers and also add protection to consumers.
+- However, for cases such as the case of our worker emitting event, the worker does not have a cookie (user passes cookie through browser but of course a worker doesnt have access)
+- For that case, we can skip the JwtAuthGuard on the consumer function, and if user id is needed it can be passed through from the worker.
+- The aspect of not putting a guard over the consumer function doesn't seem perfect, but had a discussion with claude in which it clarified some doubts. Will look into this further.
+
+UPDATE IMPORTANT:
+Kafka consumer functions aparantly shouldnt be authenticated, as per chatgpt
+A Kafka consumer isn't receiving an HTTP request. It's receiving a message from another service.
+
+By the time the event is published, the gateway has already:
+
+Validated the cookie
+Identified the user
+Authorized the action (if necessary)
+
+The consumer's job is to process a trusted event, not authenticate a user.
+
+In order to pass the userId, the most common approach is to pass it from the API gateway via the payload
+Once the gateway authenticates the request and extracts the user from the cookie, it should include the user information that downstream services need in the Kafka message.

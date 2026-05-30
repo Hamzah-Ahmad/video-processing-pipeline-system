@@ -7,3 +7,7 @@ export class UrlReqBodyDto {
   @IsString()
   contentType: string;
 }
+
+export class UrlReqInternalDto extends UrlReqBodyDto {
+  userId: string;
+}

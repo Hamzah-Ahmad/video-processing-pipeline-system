@@ -6,17 +6,30 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { UrlReqBodyDto } from './dto/UrlReqBody.dto';
+import { UrlReqBodyDto, UrlReqInternalDto } from './dto/UrlReqBody.dto';
 
 @Injectable()
 export class MediaService {
   constructor(@Inject(MEDIA_SERVICE) private mediaClient: ClientProxy) {}
-  async uploadUrl({ filename, contentType }: UrlReqBodyDto) {
+  async uploadUrl({ filename, contentType }: UrlReqBodyDto, userId: string) {
     return await firstValueFrom(
-      this.mediaClient.send<any, UrlReqBodyDto>(MEDIA_PATTERS.GET_UPLOAD_URL, {
-        filename,
-        contentType,
-      }),
+      this.mediaClient.send<any, UrlReqInternalDto>(
+        MEDIA_PATTERS.GET_UPLOAD_URL,
+        {
+          filename,
+          contentType,
+          userId,
+        },
+      ),
     );
   }
+
+  // NOTE: For testing, delete.
+  // async test(authCookie: string) {
+  //   return await firstValueFrom(
+  //     this.mediaClient.send<any, any>('media_test', {
+  //       Authentication: authCookie
+  //     }),
+  //   );
+  // }
 }

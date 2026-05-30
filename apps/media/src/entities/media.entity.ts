@@ -14,11 +14,13 @@ export enum MediaStatus {
 }
 
 export type VideoRendition = {
-  resolution: string;  
-  width: number;
-  height: number;
+  resolution: string;   // "720p"
+  width?: number;
+  height?: number;
   bitrate?: number;
-  url: string;        
+
+  bucket: string;
+  key: string;
 };
 
 @Entity()
@@ -36,9 +38,14 @@ export class Media {
   @Column({ nullable: true })
   description: string;
 
+  // ORIGINAL UPLOAD (S3 identity, not URL)
   @Column()
-  originalUrl: string;
+  originalBucket: string;
 
+  @Column()
+  originalKey: string;
+
+  // TRANSCODED OUTPUTS
   @Column({ type: 'jsonb', nullable: true })
   renditions: VideoRendition[];
 
@@ -51,7 +58,6 @@ export class Media {
 
   @Column({ nullable: true })
   thumbnailUrl: string;
-
 
   @CreateDateColumn()
   createdAt: Date;

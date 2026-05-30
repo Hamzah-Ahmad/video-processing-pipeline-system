@@ -28,9 +28,10 @@ export default async function processVideo({
   inputKey: string;
 }) {
   try {
-    const outputs: { quality: string; key: string; url: string }[] = [];
+    const outputs: { quality: string; key: string; bucket: string }[] = [];
 
     const baseId = crypto.randomUUID();
+    const outputBucket = 'processed-videos';
     // This method gets the S3 video stream for each format. Not the best way to do this
     // The better way would be to configure ffmpeg to output in all formats in parallel. Will try that later
     for (const format of formats) {
@@ -65,7 +66,7 @@ export default async function processVideo({
       const upload = new Upload({
         client: s3,
         params: {
-          Bucket: 'processed-videos',
+          Bucket: outputBucket,
           Key: outputKey,
           Body: ffmpeg.stdout,
         },
@@ -86,10 +87,8 @@ export default async function processVideo({
       outputs.push({
         quality: format.name,
         key: outputKey,
-        url: `http://localhost:4566/processed-videos/${outputKey}`,
+        bucket: outputBucket,
       });
-
-      console.log(`${format.name} DONE`);
     }
     await producer.send({
       topic: 'video.processed',
