@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
+import { Comment } from './comment.entity';
 
 export enum MediaStatus {
   PROCESSING = 'PROCESSING',
@@ -14,7 +16,7 @@ export enum MediaStatus {
 }
 
 export type VideoRendition = {
-  resolution: string;   // "720p"
+  resolution: string; // "720p"
   width?: number;
   height?: number;
   bitrate?: number;
@@ -58,6 +60,9 @@ export class Media {
 
   @Column({ nullable: true })
   thumbnailUrl: string;
+
+  @OneToMany(() => Comment, (comment) => comment.media)
+  comments: Comment[];
 
   @CreateDateColumn()
   createdAt: Date;

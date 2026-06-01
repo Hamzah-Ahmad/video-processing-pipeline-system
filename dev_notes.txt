@@ -1,4 +1,6 @@
+////////////////////////////////////////////////////////////////////////////
 Authentication b/w micorservices and getting current user
+////////////////////////////////////////////////////////////////////////////
 
 - In api-gateway media module
   -- Controller
@@ -49,3 +51,23 @@ The consumer's job is to process a trusted event, not authenticate a user.
 
 In order to pass the userId, the most common approach is to pass it from the API gateway via the payload
 Once the gateway authenticates the request and extracts the user from the cookie, it should include the user information that downstream services need in the Kafka message.
+
+
+////////////////////////////////////////////////////////////////////////////
+One To One Explicit Id
+////////////////////////////////////////////////////////////////////////////
+Explicitly setting the mediaId column comes down to TypeORM's internal management versus direct access in your code.
+
+The Implicit Approach (Standard)
+When you use @JoinColumn(), TypeORM automatically creates a hidden mediaId column in your database table to serve as the foreign key. You don't have to define this property in your TypeScript class, and TypeORM handles it entirely behind the scenes when saving or joining entities.
+
+The Explicit Approach (Manual Property)
+By manually adding mediaId as a property in your entity, you gain a few practical benefits:
+
+Direct Access: You can read the ID directly from the object (e.g., comment.mediaId) without needing to load the entire media relationship object first.
+Efficiency: If you only need the ID, you can perform logic without triggering an expensive JOIN query to fetch the full Media entity from the database.
+Clarity/Debugging: Having the column explicitly defined in your entity class makes it easier to see exactly what columns exist in your database table just by looking at your code.
+Key Takeaway: You don't need to define it explicitly for the relationship to function—TypeORM will manage the foreign key regardless. Adding it manually is simply a design choice for when you want easier, more performant access to that foreign key value within your application logic.
+
+
+

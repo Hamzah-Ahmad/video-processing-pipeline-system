@@ -1,3 +1,8 @@
+====QUICK COMMAND REFERENCES====
+(Creating Migration) docker-compose exec media npm run typeorm:generate-migration-media --name=CreateMedia
+(Running Migration): docker-compose exec user npm run typeorm:run-migration-user
+
+
 Docker and PGAdmin
 
 Note: Steps to connect to DB using PG Admin
@@ -99,6 +104,8 @@ Migration Commands
 ***(When using docker-compose)***
 docker-compose exec user npm run typeorm:generate-migration-user --name=CreateUser
 docker-compose exec media npm run typeorm:generate-migration-media --name=CreateMedia
+(For running): docker-compose exec user npm run typeorm:run-migration-user
+
 
 
 This command is written to accododate our package.jsons script: "typeorm:create-migration-user": "npm run typeorm -- migration:create ./apps/user/migrations/$npm_config_name -d ./apps/user/typeOrm.config.ts",
@@ -171,3 +178,6 @@ JWT Guards
 Commons JWT Guard: Generic JWT validation used by the API Gateway and other services. Validates token signature only.
 Auth Service JWT Guard: Auth-specific guard that validates the JWT AND fetches the full user object from the User microservice. Used by auth message patterns (LOGIN, AUTHENTICATE, etc.) where the complete user data is needed.
 Rule: Auth-specific logic stays in the auth service. Generic JWT validation lives in commons.
+
+
+

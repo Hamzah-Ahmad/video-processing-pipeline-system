@@ -9,6 +9,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AUTH_SERVICE } from '@app/common/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard, RolesGuard } from '@app/common/guards';
+import { Comment } from './entities/comment.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { JwtAuthGuard, RolesGuard } from '@app/common/guards';
       envFilePath: './apps/media/.env',
     }),
     DatabaseModule,
-    TypeOrmModule.forFeature([Media]),
+    TypeOrmModule.forFeature([Media, Comment]),
     ClientsModule.registerAsync([
       {
         name: AUTH_SERVICE,

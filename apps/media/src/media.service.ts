@@ -17,7 +17,7 @@ export class MediaService {
   private s3Client: S3Client;
   private BUCKET_NAME = 'uploaded-videos';
 
-  private readonly logger = new Logger(MediaService.name); // ✅ class property
+  private readonly logger = new Logger(MediaService.name);
 
   // Why localhost:4566 instead of localstack:4566?
   //
