@@ -1,5 +1,15 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Media } from './media.entity';
+import { CommentUserProjection } from './comment-user-projection.entity';
 
 @Entity()
 export class Comment {
@@ -9,16 +19,24 @@ export class Comment {
   @Index()
   @Column()
   userId: string;
-  
+
   @Column()
   text: string;
 
-  @ManyToOne(() => Media, (media) => media.comments,  { onDelete: 'CASCADE' })
-  media: Media
+  @ManyToOne(() => Media, (media) => media.comments, { onDelete: 'CASCADE' })
+  media: Media;
+
+  // @ManyToOne - many comments can belong to one user projection
+  // @JoinColumn connects the two tables:
+  //   - name: 'userId' tells TypeORM to use the existing userId column on the comments table as the join key
+  //     (without this, TypeORM would auto-generate a new 'authorId' column based on the property name)
+  //   - referencedColumnName: 'userId' tells TypeORM to match against the userId column on the comment_user_projection table
+  //     (without this, TypeORM defaults to matching against the 'id' column on comment_user_projection)
+  // createForeignKeyConstraints: false disables the strict DB-level foreign key check, since the projection
+  //   is populated asynchronously via events and a userId on a comment may not yet exist in comment_user_projection
+  @ManyToOne(() => CommentUserProjection, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
+  author: CommentUserProjection;
 }
-
-
-
-
-// Reference video for NOTE-01: https://www.youtube.com/watch?v=rKgZLVgdvAY&t=333s
-// Asked the YT AI for more explanation. Added in dev_notes as "One To One Explicit Id" section

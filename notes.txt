@@ -1,6 +1,6 @@
 ====QUICK COMMAND REFERENCES====
 (Creating Migration) docker-compose exec media npm run typeorm:generate-migration-media --name=CreateMedia
-(Running Migration): docker-compose exec user npm run typeorm:run-migration-user
+(Running Migration): docker-compose exec media npm run typeorm:run-migration-media
 
 
 Docker and PGAdmin

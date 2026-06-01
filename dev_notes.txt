@@ -56,6 +56,7 @@ Once the gateway authenticates the request and extracts the user from the cookie
 ////////////////////////////////////////////////////////////////////////////
 One To One Explicit Id
 ////////////////////////////////////////////////////////////////////////////
+Reference: https://www.youtube.com/watch?v=rKgZLVgdvAY&t=333s
 Explicitly setting the mediaId column comes down to TypeORM's internal management versus direct access in your code.
 
 The Implicit Approach (Standard)
