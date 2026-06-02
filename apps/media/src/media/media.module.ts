@@ -3,14 +3,20 @@ import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Media } from './entities/media.entity';
-import { DatabaseModule } from './database/database.module';
+import { Media } from '../entities/media.entity';
+import { DatabaseModule } from '../database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AUTH_SERVICE } from '@app/common/constants';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard, RolesGuard } from '@app/common/guards';
-import { Comment } from './entities/comment.entity';
+import { CommentUserProjection } from '../entities/comment-user-projection.entity';
+import { CommentModule } from '../comment/comment.module';
 
+// Note: This service has no AppModule, so MediaModule acts as the root module.
+// DatabaseModule (forRootAsync) is imported here once to establish the DB connection.
+// Child modules like CommentModule only use forFeature to register their entities
+// into that same connection — mirroring the monolith pattern where AppModule owns
+// the connection and feature modules only register their entities.
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,7 +24,8 @@ import { Comment } from './entities/comment.entity';
       envFilePath: './apps/media/.env',
     }),
     DatabaseModule,
-    TypeOrmModule.forFeature([Media, Comment]),
+    CommentModule, // CommentModule is imported here so its forFeature entities (Comment, CommentUserProjection) are registered into the TypeORM connection established by DatabaseModule above. This is needed because Media entity has relations to these entities.
+    TypeOrmModule.forFeature([Media]),
     ClientsModule.registerAsync([
       {
         name: AUTH_SERVICE,
@@ -35,6 +42,7 @@ import { Comment } from './entities/comment.entity';
         // imports: [ConfigModule] // We would need to do this if isGlobal was not set to true in ConfigModule.forRoot
       },
     ]),
+    CommentModule
   ],
   controllers: [MediaController],
   providers: [

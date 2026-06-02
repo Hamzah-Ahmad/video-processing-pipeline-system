@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard, RolesGuard } from '@app/common/guards';
 import { AuthModule } from './auth/auth.module';
 import { MediaModule } from './media/media.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MediaModule } from './media/media.module';
       },
     ]),
     MediaModule,
+    CommentModule,
   ],
   controllers: [ApiGatewayController],
   providers: [

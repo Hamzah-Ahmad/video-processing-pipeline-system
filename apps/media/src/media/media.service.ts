@@ -3,14 +3,10 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  UrlReqBodyDto,
-  UrlReqInternalDto,
-} from 'apps/api-gateway/src/media/dto/UrlReqBody.dto';
-import { randomUUID } from 'crypto';
+import { UrlReqInternalDto } from 'apps/api-gateway/src/media/dto/UrlReqBody.dto';
 import { Repository } from 'typeorm';
-import { Media, MediaStatus, VideoRendition } from './entities/media.entity';
-import { TranscodeCompletedEvent } from './interfaces/media.interface';
+import { Media, MediaStatus, VideoRendition } from '../entities/media.entity';
+import { TranscodeCompletedEvent } from '../interfaces/media.interface';
 
 @Injectable()
 export class MediaService {
