@@ -74,7 +74,6 @@ export class S3Service {
 //       });
 //       return url;
 //     } catch (err) {
-//       console.log('LOGGER - err: ', err);
 //       throw new RpcException({
 //         statusCode: 500, // optional
 //         message: 'Something went wrong',

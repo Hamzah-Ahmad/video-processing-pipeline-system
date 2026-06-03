@@ -1,4 +1,4 @@
-export const VIDEO_TOPICS = {
+export const MEDIA_TOPICS = {
   PROCESSED: 'video.processed',
 };
 
