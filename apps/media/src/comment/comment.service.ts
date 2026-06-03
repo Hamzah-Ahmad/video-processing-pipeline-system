@@ -1,8 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommentUserProjection } from '../entities/comment-user-projection.entity';
 import { Repository } from 'typeorm';
 import { CommentUserDto } from '@app/common/dtos/user/CommentUser.dto';
+import { CreateCommentInternalDto } from '@app/common/dtos/comment/CreateComment.dto';
+import { RpcException } from '@nestjs/microservices';
+import { Comment } from '../entities/comment.entity';
 
 @Injectable()
 export class CommentService {
@@ -10,14 +13,17 @@ export class CommentService {
 
   constructor(
     @InjectRepository(CommentUserProjection)
-    private readonly commentUser: Repository<CommentUserProjection>,
+    private readonly commentUserRepository: Repository<CommentUserProjection>,
+
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
   ) {}
 
   async createCommentUser(body: CommentUserDto) {
     try {
-      const user = this.commentUser.create(body);
+      const user = this.commentUserRepository.create(body);
 
-      await this.commentUser.save(user);
+      await this.commentUserRepository.save(user);
     } catch (err: any) {
       this.logger.error('Failed to create CommentUserProjection', err.stack);
 
@@ -40,6 +46,25 @@ export class CommentService {
        * - With autoCommit: false → throw becomes the signal that triggers retry behavior.
        */
       throw err;
+    }
+  }
+
+  async handleCreateCommentOnVideo(body: CreateCommentInternalDto) {
+    try {
+      const newComment = this.commentRepository.create({
+        text: body.text,
+        userId: body.userId,
+        media: {
+          id: body.mediaId // If we had created an explicit mediaId property in the comment table (@Column()mediaId: string;), we could have used mediaId: body.mediaId. that is the pattern briefly mentioned in dev_notes section "One To One Explicit Id"
+        }
+      });
+
+      return await this.commentRepository.save(newComment);
+    } catch (err: any) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message || `Error occurred while creating comment`,
+      });
     }
   }
 }

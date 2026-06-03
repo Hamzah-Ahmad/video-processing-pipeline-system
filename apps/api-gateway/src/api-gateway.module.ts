@@ -18,6 +18,7 @@ import { CommentModule } from './comment/comment.module';
     }),
     UserModule,
     AuthModule,
+    // Ideally this should go inside the auth module if it will only be used in the auth service
     ClientsModule.registerAsync([
       {
         name: AUTH_SERVICE,
@@ -34,6 +35,7 @@ import { CommentModule } from './comment/comment.module';
         // imports: [ConfigModule] // We would need to do this if isGlobal was not set to true in ConfigModule.forRoot
       },
     ]),
+    
     MediaModule,
     CommentModule,
   ],

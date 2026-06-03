@@ -17,7 +17,7 @@ import { CommentService } from '../comment/comment.service';
 export class MediaController {
   constructor(private readonly mediaService: MediaService, private readonly commentService: CommentService) {}
 
-  // @UseGuards(JwtAuthGuard) // Using JwtAuthGuard here so that @CurrentUser works because we need user info. Will require us to send auth from the producer of GET_UPLOAD_URL as well. More details in dev_notes
+  // @UseGuards(JwtAuthGuard) // Can use JWTAuthGuard and CurrentUser here to get userId. However, on asking around I've found that message handlers like these should not be authenticated. However leaving this commented as can be used as reference: Using JwtAuthGuard here so that @CurrentUser works because we need user info. Will require us to send auth from the producer of GET_UPLOAD_URL as well. More details in dev_notes
   @MessagePattern(MEDIA_PATTERS.GET_UPLOAD_URL)
   uploadUrl(@Payload() payload: UrlReqInternalDto): Promise<string> {
     return this.mediaService.uploadUrl(payload);
