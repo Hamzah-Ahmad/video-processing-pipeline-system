@@ -1,6 +1,6 @@
 import { CurrentUser } from '@app/common/decorators';
 import { CreateCommentDto } from '@app/common/dtos/comment/CreateComment.dto';
-import { Body, Controller, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { User } from 'apps/user/src/entities/user.entity';
 import { CommentService } from './comment.service';
 
@@ -18,5 +18,10 @@ export class CommentController {
       userId: user.id,
       mediaId,
     });
+  }
+
+  @Get('/:mediaId')
+  async getMediaComments(@Param('mediaId') mediaId) {
+    return this.commentService.getMediaComments(mediaId);
   }
 }

@@ -55,11 +55,32 @@ export class CommentService {
         text: body.text,
         userId: body.userId,
         media: {
-          id: body.mediaId // If we had created an explicit mediaId property in the comment table (@Column()mediaId: string;), we could have used mediaId: body.mediaId. that is the pattern briefly mentioned in dev_notes section "One To One Explicit Id"
-        }
+          id: body.mediaId, // If we had created an explicit mediaId property in the comment table (@Column()mediaId: string;), we could have used mediaId: body.mediaId. that is the pattern briefly mentioned in dev_notes section "One To One Explicit Id"
+        },
       });
 
       return await this.commentRepository.save(newComment);
+    } catch (err: any) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message || `Error occurred while creating comment`,
+      });
+    }
+  }
+
+  async getMediaComments(mediaId: string) {
+    try {
+      const comments = await this.commentRepository.find({
+        where: {
+          media: {
+            id: mediaId,
+          },
+        },
+        relations: {
+          author: true
+        }
+      });
+      return comments;
     } catch (err: any) {
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

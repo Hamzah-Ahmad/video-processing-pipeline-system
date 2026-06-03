@@ -23,7 +23,18 @@ export class CommentService {
         {
           text,
           userId,
-          mediaId
+          mediaId,
+        },
+      ),
+    );
+  }
+
+  async getMediaComments(mediaId: string) {
+    return await firstValueFrom(
+      this.mediaClient.send<any, { mediaId: string }>(
+        MEDIA_PATTERS.GET_MEDIA_COMMENTS,
+        {
+          mediaId,
         },
       ),
     );
