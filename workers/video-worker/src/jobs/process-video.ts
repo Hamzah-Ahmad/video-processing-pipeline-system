@@ -61,6 +61,10 @@ export default async function processVideo({
         'pipe:1',
       ]);
 
+      ffmpeg.stderr.on('data', (data) => {
+        console.error(`[ffmpeg stderr - ${format.name}]:`, data.toString());
+      });
+
       inputStream.pipe(ffmpeg.stdin);
 
       const upload = new Upload({

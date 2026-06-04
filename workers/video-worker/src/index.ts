@@ -64,7 +64,11 @@ async function pollQueue() {
           try {
             const body = JSON.parse(message.Body || '');
 
-            for (const record of body?.Records) {
+            //  Added ?? [] because body?.Records can be undefined if the Records field is
+            // missing or malformed in the parsed body — and for...of throws a TypeError
+            // when given undefined, even with optional chaining (?.) which only prevents
+            // the property access from throwing, not the iteration itself.
+            for (const record of body?.Records ?? []) {
               const bucket = record.s3.bucket.name;
               const key = record.s3.object.key;
 
@@ -73,7 +77,8 @@ async function pollQueue() {
 
             await sqs.send(
               new DeleteMessageCommand({
-                QueueUrl: 'http://localstack:4566/000000000000/UploadVideoQueue',
+                QueueUrl:
+                  'http://localstack:4566/000000000000/UploadVideoQueue',
                 ReceiptHandle: message.ReceiptHandle,
               }),
             );

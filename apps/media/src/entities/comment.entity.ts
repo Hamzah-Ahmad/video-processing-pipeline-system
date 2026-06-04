@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -7,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Media } from './media.entity';
 import { CommentUserProjection } from './comment-user-projection.entity';
@@ -39,4 +41,23 @@ export class Comment {
   })
   @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
   author: CommentUserProjection;
+
+  @ManyToOne(() => Comment, (comment) => comment.replies, {
+    onDelete: 'CASCADE',
+  })
+  parent: Comment;
+
+  @Column({ nullable: true })
+  parentId: string;
+
+  @OneToMany(() => Comment, (comment) => comment.parent)
+  replies: Comment[];
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  replyCount: string; // Needed for loadRelationAndCount
 }

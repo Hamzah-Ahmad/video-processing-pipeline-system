@@ -57,6 +57,7 @@ export class CommentService {
         media: {
           id: body.mediaId, // If we had created an explicit mediaId property in the comment table (@Column()mediaId: string;), we could have used mediaId: body.mediaId. that is the pattern briefly mentioned in dev_notes section "One To One Explicit Id"
         },
+        parentId: body.parentId ?? undefined,
       });
 
       return await this.commentRepository.save(newComment);
@@ -70,16 +71,14 @@ export class CommentService {
 
   async getMediaComments(mediaId: string) {
     try {
-      const comments = await this.commentRepository.find({
-        where: {
-          media: {
-            id: mediaId,
-          },
-        },
-        relations: {
-          author: true
-        }
-      });
+      const comments = await this.commentRepository
+        .createQueryBuilder('comment')
+        .where('comment.mediaId=:mediaId', { mediaId })
+        .andWhere('comment.parentId IS NULL')
+        .leftJoinAndSelect('comment.author', 'author')
+        .loadRelationCountAndMap('comment.replyCount', 'comment.replies')
+        .getMany();
+
       return comments;
     } catch (err: any) {
       throw new RpcException({

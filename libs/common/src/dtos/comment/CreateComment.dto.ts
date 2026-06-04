@@ -6,6 +6,14 @@ export class CreateCommentDto {
 }
 
 export class CreateCommentInternalDto extends CreateCommentDto {
+  @IsString()
   userId: string;
+
+  @IsString()
   mediaId: string
+
+  @IsOptional()
+  @IsString()
+  parentId?: string
+
 }

@@ -90,3 +90,31 @@ autoCommit: true,
 },
 },
 })                          ;
+
+//////
+loadRelationCountAndMap (AI generated explanation)
+/////
+loadRelationCountAndMap lets you attach a computed count of a relation onto an entity result without changing your database schema.
+For exmple: "give me a number based on a relation and stick it on the returned object"
+
+const comments = await this.commentRepository
+.createQueryBuilder('comment')
+.loadRelationCountAndMap(
+'comment.replyCount',
+'comment.replies'
+)
+.getMany()                                    ;
+
+Result:
+
+{
+id: '123',
+text: 'hello',
+replyCount: 5
+}
+
+It needs a proeprty in the entity, like replyCount. But the oropery does not need an @Column decorator above it
+replyCount?: number                                                                                             ;
+
+TypeORM does not store this in the DB. We dont need to run a migration when we add this. It only exists at runtime on the returned object The TS property is just for type safety
+Documentation mentions that this is not the oreferred methid anymore. However wanted to test it.

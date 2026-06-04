@@ -12,10 +12,12 @@ export class CommentService {
     text,
     userId,
     mediaId,
+    parentId
   }: {
     text: string;
     userId: string;
     mediaId: string;
+    parentId?: string;
   }) {
     return await firstValueFrom(
       this.mediaClient.send<any, CreateCommentInternalDto>(
@@ -24,6 +26,7 @@ export class CommentService {
           text,
           userId,
           mediaId,
+          parentId
         },
       ),
     );

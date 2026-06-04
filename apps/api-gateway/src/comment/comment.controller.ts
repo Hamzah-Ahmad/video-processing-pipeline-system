@@ -7,6 +7,7 @@ import { CommentService } from './comment.service';
 @Controller('comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
+
   @Post('/:mediaId')
   async createCommentOnVideo(
     @Body() { text }: CreateCommentDto,
@@ -17,6 +18,20 @@ export class CommentController {
       text,
       userId: user.id,
       mediaId,
+    });
+  }
+
+  @Post('/:mediaId/:commentId')
+  async addReplyToComment(
+    @Body() { text }: CreateCommentDto,
+    @CurrentUser() user: User,
+    @Param() params: { mediaId: string; commentId: string },
+  ) {
+    return this.commentService.createCommentOnVideo({
+      text,
+      userId: user.id,
+      mediaId: params.mediaId,
+      parentId: params.commentId,
     });
   }
 
