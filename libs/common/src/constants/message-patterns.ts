@@ -14,5 +14,6 @@ export const USER_PATTERNS = {
 export const MEDIA_PATTERS = {
   GET_UPLOAD_URL: 'media.uploadUrl',
   CREATE_COMMENT_ON_MEDIA: 'media.createComment',
-  GET_MEDIA_COMMENTS: 'media.getComments'
+  GET_MEDIA_COMMENTS: 'media.getComments',
+  GET_COMMENT_REPLIES: 'media.getCommentReplies'
 }

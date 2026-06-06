@@ -17,4 +17,9 @@ export class CommentController {
   getMediaComments(@Payload() { mediaId }: { mediaId: string }) {
     return this.commentService.getMediaComments(mediaId);
   }
+
+  @MessagePattern(MEDIA_PATTERS.GET_COMMENT_REPLIES)
+  getCommentReplies(@Payload() { commentId }: { commentId: string }) {
+    return this.commentService.getCommentReplies(commentId);
+  }
 }

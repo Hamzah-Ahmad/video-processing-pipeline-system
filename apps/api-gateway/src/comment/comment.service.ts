@@ -42,4 +42,15 @@ export class CommentService {
       ),
     );
   }
+
+  async getCommentReplies(commentId: string) {
+    return await firstValueFrom(
+      this.mediaClient.send<any, { commentId: string }>(
+        MEDIA_PATTERS.GET_COMMENT_REPLIES,
+        {
+          commentId,
+        },
+      ),
+    );
+  }
 }

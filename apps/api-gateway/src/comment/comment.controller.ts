@@ -39,4 +39,9 @@ export class CommentController {
   async getMediaComments(@Param('mediaId') mediaId) {
     return this.commentService.getMediaComments(mediaId);
   }
+
+    @Get('/:commentId/replies')
+  async getCommentReplies(@Param('commentId') commentId) {
+    return this.commentService.getCommentReplies(commentId);
+  }
 }

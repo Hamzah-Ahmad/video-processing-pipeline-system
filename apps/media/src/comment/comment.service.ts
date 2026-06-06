@@ -87,4 +87,22 @@ export class CommentService {
       });
     }
   }
+
+  async getCommentReplies(commentId: string) {
+    try {
+      const comments = await this.commentRepository
+        .createQueryBuilder('comment')
+        .where('comment.parentId=:commentId', { commentId })
+        .leftJoinAndSelect('comment.author', 'author')
+        .loadRelationCountAndMap('comment.replyCount', 'comment.replies')
+        .getMany();
+
+      return comments;
+    } catch (err: any) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message || `Error occurred while creating comment`,
+      });
+    }
+  }
 }
