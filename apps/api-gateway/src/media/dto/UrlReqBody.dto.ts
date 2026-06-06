@@ -6,6 +6,9 @@ export class UrlReqBodyDto {
 
   @IsString()
   contentType: string;
+
+  @IsString()
+  title: string;
 }
 
 export class UrlReqInternalDto extends UrlReqBodyDto {

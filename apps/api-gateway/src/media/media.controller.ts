@@ -6,12 +6,14 @@ import {
   HttpException,
   Inject,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { UrlReqBodyDto } from './dto/UrlReqBody.dto';
 import { UserDto } from '@app/common/dtos/user';
 import { Request } from 'express';
+import { GetMediaDto } from '@app/common/dtos/media/GetMedia.dto';
 
 @Controller('media')
 export class MediaController {
@@ -30,10 +32,15 @@ export class MediaController {
     }
   }
 
-  // NOTE: For testing, delete.
-  //  @Get('test')
-  // test( @CurrentUser() user: UserDto, @Req() req: Request) {
-  //   const cookie = req.cookies?.Authentication;
-  //   return this.mediaService.test(cookie);
-  // }
+  @Get('/')
+  async getAllVideos(@Query() query: GetMediaDto) {
+    try {
+      return await this.mediaService.getAllMedia(query)
+    } catch (err: any) {
+      throw new HttpException(
+        err.message ?? 'Something went wrong',
+        err.statusCode ?? 500,
+      );
+    }
+  }
 }

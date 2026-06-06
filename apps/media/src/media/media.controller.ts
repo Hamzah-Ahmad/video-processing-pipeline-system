@@ -12,6 +12,7 @@ import { USER_TOPICS, MEDIA_TOPICS } from '@app/common/constants/kafka-topics';
 import { TranscodeCompletedEvent } from '../interfaces/media.interface';
 import { CommentUserDto } from '@app/common/dtos/user/CommentUser.dto';
 import { CommentService } from '../comment/comment.service';
+import { GetMediaDto } from '@app/common/dtos/media/GetMedia.dto';
 
 @Controller()
 export class MediaController {
@@ -27,6 +28,11 @@ export class MediaController {
   @MessagePattern(MEDIA_TOPICS.PROCESSED) // TODO - Change this MessagePattern to EventPattern instead since htis is consuming a Kafka event and the producer is not expecting a response. Do it when codebase clean so it can be properly testd.
   saveUrlsToDb(@Payload() payload: TranscodeCompletedEvent): any {
     return this.mediaService.saveUrlsToDb(payload);
+  }
+
+  @MessagePattern(MEDIA_PATTERS.GET_ALL_MEDIA) // TODO - Change this MessagePattern to EventPattern instead since htis is consuming a Kafka event and the producer is not expecting a response. Do it when codebase clean so it can be properly testd.
+  getAllMedia(@Payload() payload: GetMediaDto): any {
+    return this.mediaService.getAllMedia(payload)
   }
 
   @EventPattern(USER_TOPICS.CREATED) 

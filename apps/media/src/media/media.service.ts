@@ -4,9 +4,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UrlReqInternalDto } from 'apps/api-gateway/src/media/dto/UrlReqBody.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Media, MediaStatus, VideoRendition } from '../entities/media.entity';
 import { TranscodeCompletedEvent } from '../interfaces/media.interface';
+import { GetMediaDto } from '@app/common/dtos/media/GetMedia.dto';
 
 @Injectable()
 export class MediaService {
@@ -31,6 +32,7 @@ export class MediaService {
   constructor(
     @InjectRepository(Media)
     private readonly mediaRepository: Repository<Media>,
+    private readonly dataSource: DataSource,
   ) {
     this.s3Client = new S3Client({
       region: 'us-east-1',
@@ -44,7 +46,7 @@ export class MediaService {
   }
 
   async uploadUrl(payload: UrlReqInternalDto): Promise<string> {
-    const { contentType, filename, userId } = payload;
+    const { contentType, filename, userId, title } = payload;
     const fileExtension = filename?.split('.').pop();
     const mediaId = crypto.randomUUID();
     const key = `videos/${mediaId}/raw.${fileExtension}`;
@@ -73,6 +75,7 @@ export class MediaService {
         status: MediaStatus.PROCESSING,
         originalBucket: this.BUCKET_NAME,
         originalKey: key,
+        title,
       });
       await this.mediaRepository.save(newMedia);
     } catch (err) {
@@ -142,4 +145,32 @@ export class MediaService {
     }
   }
 
+  async getAllMedia(payload: GetMediaDto): Promise<any> {
+    try {
+      // return await this.mediaRepository.find();
+      const query = this.dataSource
+        .getRepository(Media)
+        .createQueryBuilder('media')
+        .where('1 = 1'); // Added this because both authorId and search are optional, so we can't use WHERE with one and ANDWHERE with the other (how would we decide which to use which?). A/c to google: In SQL or query builders, .where('1 = 1') is a placeholder condition that always evaluates to true. It is used as a foundation for building dynamic queries so that developers can easily append extra filters with AND without worrying about whether a WHERE clause already exists.
+
+      if (payload.authorId) {
+        query.andWhere('media.userId=:userId', {
+          userId: payload.authorId,
+        });
+      }
+      if (payload.search) {
+        query.andWhere('media.title ILIKE :search', {
+          search: `%${payload.search}%`,
+        });
+      }
+      const data = await query.getMany();
+      return data;
+    } catch (err) {
+      if (err instanceof RpcException) throw err; // this is just so that we throw the exceptuon we wrote in the try block above
+      throw new RpcException({
+        statusCode: 500,
+        message: `Something went wrong`,
+      });
+    }
+  }
 }
